@@ -17,39 +17,21 @@
 #include "app_priv.h"
 
 /* This is the button that is used for toggling the power */
-#define BUTTON_GPIO          21
+#define BUTTON_GPIO_1         21
 #define BUTTON_GPIO_2         17
 #define BUTTON_ACTIVE_LEVEL  0
 
 /* This is the GPIO on which the power will be set */
-#define OUTPUT_GPIO    14
+#define OUTPUT_GPIO_1   14
 #define OUTPUT_GPIO_2  27
 static bool g_power_state = DEFAULT_POWER;
 static bool g_power_state_nirmesh = DEFAULT_POWER;
 
-/* These values correspoind to H,S,V = 120,100,10 */
-#define DEFAULT_RED     0
-#define DEFAULT_GREEN   25
-#define DEFAULT_BLUE    0
-
 #define WIFI_RESET_BUTTON_TIMEOUT       3
 #define FACTORY_RESET_BUTTON_TIMEOUT    10
 
-static void app_indicator_set(bool state)
-{
-    if (state) {
-        ws2812_led_set_rgb(DEFAULT_RED, DEFAULT_GREEN, DEFAULT_BLUE);
-    } else {
-        ws2812_led_clear();
-    }
-}
 
-static void app_indicator_init(void)
-{
-    ws2812_led_init();
-    app_indicator_set(g_power_state);
-}
-static void push_btn_cb(void *arg)
+static void push_btn_cb1(void *arg)
 {
     bool new_state = !g_power_state;
     app_driver_set_state(new_state);
@@ -58,7 +40,7 @@ static void push_btn_cb(void *arg)
             esp_rmaker_bool(new_state));
 }
 
-static void push_btn_cb1(void *arg)
+static void push_btn_cb2(void *arg)
 {
     bool new_state_nirmesh = !g_power_state_nirmesh;
     app_driver_set_state2(new_state_nirmesh);
@@ -69,31 +51,31 @@ static void push_btn_cb1(void *arg)
 
 static void set_power_state(bool target)
 {
-    gpio_set_level(OUTPUT_GPIO, target);
-    app_indicator_set(target);
+    gpio_set_level(OUTPUT_GPIO_1, target);
+    
 }
 
 static void set_power_state2(bool target)
 {
     gpio_set_level(OUTPUT_GPIO_2, target);
-    app_indicator_set(target);
+    
 }
 
 
-void app_driver_init2()
+void app_driver_init()
 {
-    button_handle_t btn_handle = iot_button_create(BUTTON_GPIO, BUTTON_ACTIVE_LEVEL);
+    button_handle_t btn_handle1 = iot_button_create(BUTTON_GPIO_1, BUTTON_ACTIVE_LEVEL);
 	button_handle_t btn_handle2 = iot_button_create(BUTTON_GPIO_2, BUTTON_ACTIVE_LEVEL);
 	
-    if (btn_handle) {
+    if (btn_handle1) {
         /* Register a callback for a button tap (short press) event */
-        iot_button_set_evt_cb(btn_handle, BUTTON_CB_TAP, push_btn_cb, NULL);
+        iot_button_set_evt_cb(btn_handle1, BUTTON_CB_TAP, push_btn_cb1, NULL);
         /* Register Wi-Fi reset and factory reset functionality on same button */
-        app_reset_button_register(btn_handle, WIFI_RESET_BUTTON_TIMEOUT, FACTORY_RESET_BUTTON_TIMEOUT);
+        app_reset_button_register(btn_handle1, WIFI_RESET_BUTTON_TIMEOUT, FACTORY_RESET_BUTTON_TIMEOUT);
 	}
 	if (btn_handle2) {
         /* Register a callback for a button tap (short press) event */
-        iot_button_set_evt_cb(btn_handle2, BUTTON_CB_TAP, push_btn_cb1, NULL);
+        iot_button_set_evt_cb(btn_handle2, BUTTON_CB_TAP, push_btn_cb2, NULL);
         /* Register Wi-Fi reset and factory reset functionality on same button */
 		
     }
@@ -103,10 +85,10 @@ void app_driver_init2()
         .mode = GPIO_MODE_OUTPUT,
         .pull_up_en = 1,
     };
-    io_conf.pin_bit_mask = (((uint64_t)1 << OUTPUT_GPIO) | ((uint64_t)1 << OUTPUT_GPIO_2));
+    io_conf.pin_bit_mask = (((uint64_t)1 << OUTPUT_GPIO_1) | ((uint64_t)1 << OUTPUT_GPIO_2));
     /* Configure the GPIO */
     gpio_config(&io_conf);
-    app_indicator_init();
+   
 }
 
 int IRAM_ATTR app_driver_set_state(bool state)

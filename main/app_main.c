@@ -113,7 +113,7 @@ void app_main()
      * set initial state.
      */
     esp_rmaker_console_init();
-    app_driver_init2();
+    app_driver_init();
 
     app_driver_set_state(DEFAULT_POWER);
 	app_driver_set_state2(DEFAULT_POWER);
