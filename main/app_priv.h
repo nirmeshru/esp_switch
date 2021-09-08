@@ -12,9 +12,11 @@
 #define DEFAULT_POWER  true
 extern esp_rmaker_device_t *switch_device1;
 extern esp_rmaker_device_t *switch_device2;
+extern esp_rmaker_device_t *switch_device3;
+extern esp_rmaker_device_t *switch_device4;
 void app_driver_init(void);
 int app_driver_set_state(bool state);
 int app_driver_set_state2(bool state);
+int app_driver_set_state3(bool state);
+int app_driver_set_state4(bool state);
 bool app_driver_get_state(void);
-void app_driver_init1(void);
-void app_driver_init2(void);
